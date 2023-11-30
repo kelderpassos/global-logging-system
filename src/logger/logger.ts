@@ -4,80 +4,70 @@ import { SqsHandler } from '../sqs/sqs-handler';
 import { CloudWatchLogs } from '@aws-sdk/client-cloudwatch-logs';
 import { LoggerUtils } from '../01-presentation/api/utils/loggerUtils';
 import { ssmGetParameter } from '../ssm/ssmParams';
+import { LogLevel } from '../03-model/logLevel.enum';
 
 const { combine, colorize, printf, timestamp } = format;
 
-export enum LogLevel {
-  DEBUG = 'debug',
-  INFO = 'info',
-  WARN = 'warn',
-  ERROR = 'error'
-}
+export type Log = {
+  message: string;
+  url: string;
+  lambdaName: string;
+  serviceName: string;
+  timestamp: string;
+  context: object | undefined;
+};
 
 process.env.REGION = 'us-east-1';
 process.env.BASE_CLOUDWATCH_URL = `https://${process.env.REGION}.console.aws.amazon.com/cloudwatch/home?region=us-east-1#logsV2:log-groups/log-group`;
 
-export class Logger {
+export abstract class Logger {
   private _logger: winston.Logger;
-  private _sqs: SqsHandler;
   private readonly _baseUrl = process.env.BASE_CLOUDWATCH_URL;
   private readonly _timestamp = new Date().toISOString();
   private readonly _hash = LoggerUtils.generateHash(this._timestamp);
 
   constructor(
     private readonly _appName: string,
-    private readonly _logGroup: string
+    private readonly _level: LogLevel
   ) {
     this._logger = this._initializeWinston();
-    this._sqs = new SqsHandler(`/${process.env.STAGE}/slackbot/QUEUE_URL`);
   }
 
-  public info = (message: string, context?: object) => {
-    this._log(message, LogLevel.INFO, context);
-  };
-
-  public warn = (message: string, context?: object) => {
-    this._log(message, LogLevel.WARN, context);
-  };
-
-  public error = async (message: string, context?: object) => {
+  public logMaker = (message: string, level: LogLevel, context?: object) => {
     const timestamp = LoggerUtils.formatTimestamp(this._timestamp);
 
-    const body = {
+    const log: Log = {
       message,
-      url: `${this._baseUrl}/${this._logGroup}/log-events/${this._appName}$2520${timestamp}$2520${this._hash}`,
+      url: `${this._baseUrl}/${this._level}/log-events/${this._appName}$2520${timestamp}$2520${this._hash}`,
       lambdaName: 'Lambida',
       serviceName: this._appName,
       timestamp,
       context
     };
 
-    console.log(body.url, 'URL');
+    console.log(log.url, 'URL');
 
-    const sqsMessage = {
-      MessageBody: JSON.stringify(body, null, 2)
-    };
-
-    this._log(message, LogLevel.ERROR, context);
-
-    const teste = await ssmGetParameter(
-      `/${process.env.STAGE}/slackbot/QUEUE_URL`
-    );
-
-    if (!teste) return;
-
-    const teste2 = new SqsHandler(teste);
-    teste2.sendMessage(sqsMessage);
-  };
-
-  public debug = (message: string, context?: object) => {
-    if (process.env.NODE_ENV !== 'prd') {
-      this._log(message, LogLevel.DEBUG, context); // Don't log debug in production
-    }
+    this._log(message, level, context);
+    if (level === LogLevel.ERROR) this._sendSlackMessage(log);
   };
 
   private _log = (message: string, level: LogLevel, context?: object) => {
     this._logger.log(level, message, { context });
+  };
+
+  private _sendSlackMessage = async (log: Log) => {
+    const sqsMessage = {
+      MessageBody: JSON.stringify(log, null, 2)
+    };
+
+    const queueUrl = await ssmGetParameter(
+      `/${process.env.STAGE}/slackbot/QUEUE_URL`
+    );
+
+    if (!queueUrl) return; // TESTAR CHAMANDO O ERROR LOG
+
+    const sqsInstance = new SqsHandler(queueUrl);
+    await sqsInstance.sendMessage(sqsMessage);
   };
 
   private _initializeWinston = () => {
@@ -123,7 +113,7 @@ export class Logger {
     return new WinstonCloudWatch({
       cloudWatchLogs: new CloudWatchLogs(),
       level: 'error',
-      logGroupName: this._logGroup,
+      logGroupName: this._level,
       logStreamName: streamName,
       awsRegion: process.env.REGION ?? 'us-east-1',
       jsonMessage: true
