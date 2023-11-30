@@ -1,6 +1,6 @@
 import { Router, Response, Request } from 'express';
 import { QueryCommandInput } from '@aws-sdk/lib-dynamodb';
-import { ssmGetParameter } from '../../../ssm/ssmParams';
+import { ssmGetParameter } from '../../../ssm/ssmFunctions';
 import { DynamoTable } from '../../dynamoDB/dynamodb';
 import { CustomError, ErrorType } from '../utils/customError';
 import { ErrorLogger } from '../../../logger/errorLogger';

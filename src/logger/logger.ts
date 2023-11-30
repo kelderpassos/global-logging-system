@@ -3,7 +3,7 @@ import WinstonCloudWatch from 'winston-cloudwatch';
 import { SqsHandler } from '../sqs/sqs-handler';
 import { CloudWatchLogs } from '@aws-sdk/client-cloudwatch-logs';
 import { LoggerUtils } from '../01-presentation/api/utils/loggerUtils';
-import { ssmGetParameter } from '../ssm/ssmParams';
+import { ssmGetParameter } from '../ssm/ssmFunctions';
 import { LogLevel } from '../03-model/logLevel.enum';
 
 const { combine, colorize, printf, timestamp } = format;
@@ -64,7 +64,9 @@ export abstract class Logger {
       `/${process.env.STAGE}/slackbot/QUEUE_URL`
     );
 
-    if (!queueUrl) return; // TESTAR CHAMANDO O ERROR LOG
+    if (!queueUrl) {
+      return;
+    }
 
     const sqsInstance = new SqsHandler(queueUrl);
     await sqsInstance.sendMessage(sqsMessage);

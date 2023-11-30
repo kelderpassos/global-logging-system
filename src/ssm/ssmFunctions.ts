@@ -37,14 +37,9 @@ export async function ssmParams(
 export async function ssmGetParameter(
   Name: string
 ): Promise<string | undefined> {
-  try {
-    const command = new GetParameterCommand({ Name });
-    const result: GetParameterCommandOutput = await ssmClient.send(command);
+  const command = new GetParameterCommand({ Name });
+  const result: GetParameterCommandOutput = await ssmClient.send(command);
 
-    if (!result.Parameter) return;
-    return result.Parameter.Value;
-  } catch (error) {
-    console.error(`invalid parameter name. Name: ${Name}`);
-    throw error;
-  }
+  if (!result.Parameter) return;
+  return result.Parameter.Value;
 }
