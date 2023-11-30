@@ -1,0 +1,45 @@
+{
+  "name": "global-logging-system",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "build": "npx tsc --project tsconfig.json",
+    "dev": "ts-node-dev --respawn --transpile-only src/01-presentation/api/app.ts",
+    "lint": "eslint . --ext .ts",
+    "deploy:sbx": "npm i && npm run build && sls deploy --stage sbx --aws-profile bigtrade-sbx",
+    "deploy:dev": "npm i && npm run build && sls deploy --stage dev --aws-profile bigtrade-dev --verbose"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.18.2",
+    "express-winston": "^4.2.0",
+    "serverless-http": "^3.2.0",
+    "winston": "^3.11.0",
+    "winston-cloudwatch": "^6.2.0",
+    "winston-daily-rotate-file": "^4.7.1"
+  },
+  "devDependencies": {
+    "@aws-sdk/client-cloudwatch-logs": "^3.460.0",
+    "@aws-sdk/client-sqs": "^3.454.0",
+    "@aws-sdk/client-ssm": "^3.454.0",
+    "@aws-sdk/lib-dynamodb": "^3.454.0",
+    "@types/express": "^4.17.21",
+    "@types/node": "^20.9.4",
+    "@typescript-eslint/eslint-plugin": "^6.12.0",
+    "@typescript-eslint/parser": "^6.12.0",
+    "eslint": "^8.54.0",
+    "eslint-config-prettier": "^9.0.0",
+    "eslint-plugin-prettier": "^5.0.1",
+    "eslint-plugin-security": "^1.7.1",
+    "prettier": "^3.1.0",
+    "serverless-deployment-bucket": "^1.6.0",
+    "serverless-esbuild": "^1.49.0",
+    "serverless-offline": "^13.3.0",
+    "serverless-plugin-optimize": "^4.2.1-rc.1",
+    "ts-node-dev": "^2.0.0",
+    "typescript": "^5.3.2"
+  }
+}
