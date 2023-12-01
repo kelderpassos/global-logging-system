@@ -1,10 +1,10 @@
 import { Router, Response, Request } from 'express';
 import { QueryCommandInput } from '@aws-sdk/lib-dynamodb';
-import { ssmGetParameter } from '../../../ssm/ssmFunctions';
-import { DynamoTable } from '../../dynamoDB/dynamodb';
-import { CustomError, ErrorType } from '../utils/customError';
-import { ErrorLogger } from '../../../logger/errorLogger';
-import { LogLevel } from '../../../03-model/logLevel.enum';
+import { ssmGetParameter } from '../../../04-infrastructure/ssm/ssmFunctions';
+import { DynamoTable } from '../../../04-infrastructure/dynamoDB/dynamodb';
+import { CustomError, ErrorType } from '../../../03-model/utils/customError';
+import { ErrorLogger } from '../../../03-model/logger/errorLogger';
+import { LogLevel } from '../../../03-model/utils/logLevel.enum';
 
 process.env.REGION = 'us-east-1';
 process.env.AWS_PROFILE = 'bigtrade-sbx';

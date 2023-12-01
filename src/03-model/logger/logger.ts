@@ -1,10 +1,10 @@
 import winston, { format, createLogger } from 'winston';
 import WinstonCloudWatch from 'winston-cloudwatch';
-import { SqsHandler } from '../sqs/sqs-handler';
+import { SqsHandler } from '../../04-infrastructure/sqs/sqs-handler';
 import { CloudWatchLogs } from '@aws-sdk/client-cloudwatch-logs';
-import { LoggerUtils } from '../01-presentation/api/utils/loggerUtils';
-import { ssmGetParameter } from '../ssm/ssmFunctions';
-import { LogLevel } from '../03-model/logLevel.enum';
+import { LoggerUtils } from '../utils/loggerUtils';
+import { ssmGetParameter } from '../../04-infrastructure/ssm/ssmFunctions';
+import { LogLevel } from '../utils/logLevel.enum';
 
 const { combine, colorize, printf, timestamp } = format;
 
@@ -44,8 +44,6 @@ export abstract class Logger {
       timestamp,
       context
     };
-
-    console.log(log.url, 'URL');
 
     this._log(message, level, context);
     if (level === LogLevel.ERROR) this._sendSlackMessage(log);
