@@ -6,12 +6,6 @@ import { CustomError, ErrorType } from '../../../03-model/utils/customError';
 import { ErrorLogger } from '../../../03-model/logger/errorLogger';
 import { LogLevel } from '../../../03-model/utils/logLevel.enum';
 
-process.env.REGION = 'us-east-1';
-process.env.AWS_PROFILE = 'bigtrade-sbx';
-process.env.SSMPATH = `agdesk-platform-infra-sbx`;
-process.env.STAGE = 'sbx';
-process.env.GMT_TABLE_NAME = 'agdesk-analysis-infra-sbx-gmt-lead-table';
-
 export const router = Router();
 
 const log = new ErrorLogger('agdesk-checker-service');
